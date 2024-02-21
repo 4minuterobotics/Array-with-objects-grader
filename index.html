@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JavaScript File Upload</title>
+    <link
+      rel="icon"
+      href="https://shop.foxmar.com/cdn/shop/collections/pompano_beach_high_school_1200x1200.png?v=1587419462"
+      type="image/x-icon"
+    />
+    <!-- External Favicon link -->
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #fff4cc; /* Light yellow background */
+        color: black; /* Gold text */
+        padding: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+        background-color: #ffd700; /* Gold background for the container */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: black; /* Gold text for the title */
+      }
+      button {
+        background-color: #806000; /* Gold background for the button */
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      code {
+        font-size: 20px;
+        font-weight: bold;
+      }
+      button:hover {
+        background-color: #665000; /* Darker gold on hover */
+      }
+      input[type="file"] {
+        margin-bottom: 20px;
+      }
+      .image-container {
+        text-align: center; /* Center the image horizontally */
+        margin-top: 20px; /* Add some space above the image */
+      }
+
+      .image-container img {
+        max-width: 50%; /* Ensure the image is responsive and does not overflow the screen */
+        height: auto; /* Maintain the aspect ratio of the image */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Objects and Arrays Assessment</h1>
+      <p>Requirements:</p>
+      <ul>
+        <li>Create an array named <code>safetyDrills</code>. (10 points)</li>
+        <li>The array must initially contain 2 objects. (10 points)</li>
+        <li>
+          Each object must have 2 properties: <code>drillName</code>,
+          <code>safetyZone</code>, and 1 method named <code>describe</code>. (5
+          points per object)
+        </li>
+        <li>
+          Add a 3rd object to the <code>safetyDrills</code> array with the same
+          property and method structure. (10 points)
+        </li>
+        <li>
+          Iterate through the array with a <code>forEach</code> or
+          <code>for</code> loop and call the <code>describe</code> method for
+          each item. (10 points)
+        </li>
+      </ul>
+      <input type="text" id="firstName" placeholder="First Name" />
+      <input type="text" id="lastName" placeholder="Last Name" />
+      <input type="text" id="ID" placeholder="ID number" />
+      <h1>Upload JavaScript File</h1>
+      <input type="file" id="fileInput" accept=".js" />
+      <button id="submitBtn">Submit</button>
+      <div class="image-container">
+        <img
+          src="https://shop.foxmar.com/cdn/shop/collections/pompano_beach_high_school_1200x1200.png?v=1587419462"
+          alt="Lets Go Tornadoes"
+        />
+      </div>
+    </div>
+
+    <script>
+      let score = 0;
+      document
+        .getElementById("submitBtn")
+        .addEventListener("click", function () {
+          const firstName = document.getElementById("firstName").value;
+          const lastName = document.getElementById("lastName").value;
+          console.log(`Name: ${firstName} ${lastName}`); // Log the name
+
+          const fileInput = document.getElementById("fileInput");
+          if (fileInput.files.length === 0) {
+            alert("Please select a file to upload.");
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const content = e.target.result;
+            // Use Function constructor to avoid using eval directly
+            const func = new Function(content + "; return safetyDrills;");
+
+            try {
+              const safetyDrills = func();
+              if (Array.isArray(safetyDrills)) {
+                console.log("File ontains an array named safetyDrills: +10");
+                // console.log(safetyDrills);
+                score = score + 10;
+              } else {
+                console.warn(
+                  "File doesn't contain an array named safetyDrills: +0"
+                );
+              }
+
+              // Check if every item in the array is an object
+              const allObjects = safetyDrills.every(
+                (item) => typeof item === "object" && !Array.isArray(item)
+              );
+              if (allObjects) {
+                console.log("Array contains all objects: +10");
+                score += 10;
+              } else {
+                console.warn("Array doesn't contain all objects: +0");
+              }
+
+              safetyDrills.forEach((drill, index) => {
+                if (
+                  drill.hasOwnProperty("drillName") &&
+                  drill.hasOwnProperty("safetyZone") &&
+                  typeof drill.describe === "function"
+                ) {
+                  console.log(
+                    `Object ${
+                      index + 1
+                    } has the required properties and method: +5`
+                  );
+                  score += 5;
+                } else {
+                  console.warn(
+                    `Object ${
+                      index + 1
+                    } is missing some required properties or the method: +0`
+                  );
+                }
+              });
+
+              if (content.includes("safetyDrills.push(")) {
+                console.log(
+                  'The file contains a push method that adds an object to the "safetyDrills" array: 10/10'
+                );
+                score = score + 10;
+              } else {
+                console.warn(
+                  'The file does not contain a push method adding an object to the "safetyDrills" array: 0/10'
+                );
+              }
+
+              try {
+                safetyDrills.forEach((drill) => drill.describe());
+                console.log(
+                  "All 'describe' methods executed successfully: +10"
+                );
+                score += 10;
+              } catch (error) {
+                console.log(
+                  "Error executing 'describe' method on one or more objects: +0"
+                );
+              }
+
+              console.log("Your final score: ", score);
+            } catch (error) {
+              console.log("Error reading the file:", error);
+            }
+          };
+          reader.readAsText(fileInput.files[0]);
+        });
+    </script>
+  </body>
+</html>
